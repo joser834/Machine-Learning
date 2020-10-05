@@ -173,26 +173,26 @@ def average_perceptron(feature_matrix, labels, T):
     Hint: It is difficult to keep a running average; however, it is simple to
     find a sum and divide.
     """
-    import numpy as np
     theta = np.zeros(feature_matrix.shape[1])
     theta_0 = 0
+    c = 0
 
-    theta_arr = []
-    theta_0_arr = []
+    u = np.zeros(feature_matrix.shape[1])
+    b = 0
 
     for j in range(T):
-        #print("----- Iteration (" + str(j+1) + "/" + str(T) + ") -----")
         for i in get_order(feature_matrix.shape[0]):
-            # Single update perceptron
             y_pred = np.dot(theta, feature_matrix[i,:]) + theta_0
 
             if labels[i]*y_pred <= 0:
                 theta += labels[i]*feature_matrix[i,:]
                 theta_0 += labels[i]
-            
-            theta_arr.append(theta)
-            theta_0_arr.append(theta_0)
-    return(np.array(theta_arr).mean(axis = 0), np.mean(theta_0_arr))
+                u += labels[i]*c*feature_matrix[i,:]
+                b += labels[i]*c
+            c += 1
+    theta = theta - u/c
+    theta_0 = theta_0 - b/c
+    return(theta, theta_0)
 #pragma: coderesponse end
 
 

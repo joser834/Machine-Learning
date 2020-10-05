@@ -1,13 +1,15 @@
 from string import punctuation, digits
 import numpy as np
 import random
+import os
 
 def get_order(n_samples):
-    try:
-        with open('C:/Users/JR29/Desktop/GitHub/Machine-Learning/Sentiment_Analysis/resources_sentiment_analysis/' + str(n_samples) + '.txt') as fp:
+    var = 'C:/Users/JR29/Desktop/GitHub/Machine-Learning/Sentiment_Analysis/resources_sentiment_analysis/'
+    if os.path.isfile(var + str(n_samples) + '.txt'):
+        with open(var + str(n_samples) + '.txt') as fp:
             line = fp.readline()
             return list(map(int, line.split(',')))
-    except NameError:
+    else:
         FileNotFoundError = IOError
         random.seed(1)
         indices = list(range(n_samples))
@@ -96,26 +98,26 @@ def average_perceptron(feature_matrix, labels, T):
     number with the value of the average theta_0, the offset classification
     parameter, found after T iterations through the feature matrix.
     """
-    import numpy as np
     theta = np.zeros(feature_matrix.shape[1])
     theta_0 = 0
+    c = 0
 
-    theta_arr = []
-    theta_0_arr = []
+    u = np.zeros(feature_matrix.shape[1])
+    b = 0
 
     for j in range(T):
-        print("----- Iteration (" + str(j+1) + "/" + str(T) + ") -----")
         for i in get_order(feature_matrix.shape[0]):
-            # Single update perceptron
             y_pred = np.dot(theta, feature_matrix[i,:]) + theta_0
 
             if labels[i]*y_pred <= 0:
                 theta += labels[i]*feature_matrix[i,:]
                 theta_0 += labels[i]
-            
-            theta_arr.append(theta)
-            theta_0_arr.append(theta_0)
-    return(np.array(theta_arr).mean(axis = 0), np.mean(theta_0_arr))
+                u += labels[i]*c*feature_matrix[i,:]
+                b += labels[i]*c
+            c += 1
+    theta = theta - u/c
+    theta_0 = theta_0 - b/c
+    return(theta, theta_0)
 
 # Example for single update -----------------------------------------------------------------------
 # f = np.array([1, 2])
@@ -125,13 +127,18 @@ def average_perceptron(feature_matrix, labels, T):
 
 # Example for full perceptron -----------------------------------------------------------------------
 f = np.array([
-    [-0.13714734, -0.1014197, -0.34854003, 0.27693084, 0.45009371, -0.24048786, 0.2279144, 0.14703612, -0.11220196, -0.00366032],
-    [-0.10397916, -0.3866046, -0.18837448, -0.28206775, -0.34864876, -0.28787942, 0.45339883, -0.08607866, -0.24583239, -0.39027705],
-    [-0.20057219, -0.36504427, 0.1316528 , 0.07279378, -0.08926369, 0.29200623, 0.24144614, -0.22884339, -0.3269274 , -0.34802841],
-    [-0.38678468, 0.46717285, -0.09754879, -0.23747704, -0.43218194, -0.21709596, 0.27751231, 0.14997779, 0.49223438, -0.03573181],
-    [0.02947019, 0.44506145, -0.21756791, 0.25508455, 0.05569321, -0.43702505, 0.20148895, 0.17175176, 0.47210888, 0.22201971]
+ [ 0.07807965,  0.35486968, -0.09192713, -0.18515078, -0.05963511,  0.31373566,
+  -0.26108445, -0.29508217, -0.28867579, -0.19791986],
+ [-0.37436567,  0.48205132, -0.05831441,  0.35996561, -0.09275385,  0.03934837,
+  -0.0482767 ,  0.22078687,  0.06614133, -0.30852791],
+ [-0.32533154, -0.42366336,  0.42998388,  0.30435934,  0.28806414 ,-0.28359362,
+  -0.02482462,  0.4723071 ,  0.26101321, -0.01499132],
+ [ 0.34938193, -0.1098686 ,  0.18568327, -0.21795992, -0.05951992, -0.12686793,
+   0.05183573,  0.32333281,  0.42091467, -0.45750666],
+ [ 0.25139458,  0.43330154, -0.31872001, -0.21165255,  0.43737074, -0.49756002,
+  -0.23664196, -0.34626735, -0.31029739,  0.41959844]
 ])
-l = [-1, 1, -1, -1, 1]
+l = [-1, 1, -1, 1, 1]
 t = 5
 
 print(average_perceptron(f, l, t))
