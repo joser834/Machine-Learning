@@ -1,17 +1,19 @@
 from string import punctuation, digits
 import numpy as np
 import random
+import os
 
 # Part I
 
 
 #pragma: coderesponse template
 def get_order(n_samples):
-    try:
-        with open(str(n_samples) + '.txt') as fp:
+    var = 'C:/Users/JR29/Desktop/GitHub/Machine-Learning/Sentiment_Analysis/resources_sentiment_analysis/'
+    if os.path.isfile(var + str(n_samples) + '.txt'):
+        with open(var + str(n_samples) + '.txt') as fp:
             line = fp.readline()
             return list(map(int, line.split(',')))
-    except FileNotFoundError:
+    else:
         random.seed(1)
         indices = list(range(n_samples))
         random.shuffle(indices)
@@ -88,8 +90,17 @@ def perceptron_single_step_update(
     real valued number with the value of theta_0 after the current updated has
     completed.
     """
-    # Your code here
-    raise NotImplementedError
+    import numpy as np
+    
+    theta = current_theta
+    theta_0 = current_theta_0
+    y_pred = np.dot(theta, feature_vector) + theta_0
+
+    if label*y_pred <= 0:
+        theta += label*feature_vector
+        theta_0 += label
+
+    return(theta, theta_0)
 #pragma: coderesponse end
 
 
@@ -119,12 +130,16 @@ def perceptron(feature_matrix, labels, T):
     theta_0, the offset classification parameter, after T iterations through
     the feature matrix.
     """
-    # Your code here
-    for t in range(T):
+    import numpy as np
+    theta = np.zeros(feature_matrix.shape[1])
+    theta_0 = 0
+
+    for j in range(T):
+        #print("----- Iteration (" + str(j+1) + "/" + str(T) + ") -----")
         for i in get_order(feature_matrix.shape[0]):
-            # Your code here
-            pass
-    raise NotImplementedError
+            theta, theta_0 = perceptron_single_step_update(feature_matrix[i,:], labels[i], theta, theta_0)
+    
+    return(theta, theta_0)
 #pragma: coderesponse end
 
 
@@ -158,8 +173,26 @@ def average_perceptron(feature_matrix, labels, T):
     Hint: It is difficult to keep a running average; however, it is simple to
     find a sum and divide.
     """
-    # Your code here
-    raise NotImplementedError
+    import numpy as np
+    theta = np.zeros(feature_matrix.shape[1])
+    theta_0 = 0
+
+    theta_arr = []
+    theta_0_arr = []
+
+    for j in range(T):
+        #print("----- Iteration (" + str(j+1) + "/" + str(T) + ") -----")
+        for i in get_order(feature_matrix.shape[0]):
+            # Single update perceptron
+            y_pred = np.dot(theta, feature_matrix[i,:]) + theta_0
+
+            if labels[i]*y_pred <= 0:
+                theta += labels[i]*feature_matrix[i,:]
+                theta_0 += labels[i]
+            
+            theta_arr.append(theta)
+            theta_0_arr.append(theta_0)
+    return(np.array(theta_arr).mean(axis = 0), np.mean(theta_0_arr))
 #pragma: coderesponse end
 
 
@@ -190,8 +223,18 @@ def pegasos_single_step_update(
     real valued number with the value of theta_0 after the current updated has
     completed.
     """
-    # Your code here
-    raise NotImplementedError
+    theta = current_theta
+    theta_0 = current_theta_0
+    y_pred = np.dot(theta, feature_vector) + theta_0
+
+    if label*y_pred <= 1:
+        theta = ((1-(eta*L))*theta) + (eta*label*feature_vector)
+        theta_0 += eta*label
+    else:
+        theta = (1-(eta*L))*theta
+        theta_0 = theta_0
+    
+    return(theta, theta_0)
 #pragma: coderesponse end
 
 
@@ -225,8 +268,19 @@ def pegasos(feature_matrix, labels, T, L):
     number with the value of the theta_0, the offset classification
     parameter, found after T iterations through the feature matrix.
     """
-    # Your code here
-    raise NotImplementedError
+    import math
+
+    theta = np.zeros(feature_matrix.shape[1])
+    theta_0 = 0
+    counter = 0
+    
+    for t in range(T):
+        for i in get_order(feature_matrix.shape[0]):
+            counter += 1
+            eta = 1/math.sqrt(counter)
+            theta, theta_0 = pegasos_single_step_update(feature_matrix[i,:], labels[i], L, eta, theta, theta_0)
+    
+    return(theta, theta_0)
 #pragma: coderesponse end
 
 # Part II
@@ -250,8 +304,14 @@ def classify(feature_matrix, theta, theta_0):
     given theta and theta_0. If a prediction is GREATER THAN zero, it should
     be considered a positive classification.
     """
-    # Your code here
-    raise NotImplementedError
+    label = []
+    for i in range(feature_matrix.shape[0]):
+        y_pred = np.dot(theta, feature_matrix[i,:]) + theta_0
+        if y_pred > 0:
+            label.append(1)
+        else:
+            label.append(-1)
+    return(np.array(label))
 #pragma: coderesponse end
 
 
@@ -288,8 +348,15 @@ def classifier_accuracy(
     trained classifier on the training data and the second element is the
     accuracy of the trained classifier on the validation data.
     """
-    # Your code here
-    raise NotImplementedError
+    theta, theta_0 = classifier(train_feature_matrix, train_labels, **kwargs)
+
+    y_pred_train = classify(train_feature_matrix, theta, theta_0)
+    y_pred_val = classify(val_feature_matrix, theta, theta_0)
+    
+    acc_train = accuracy(y_pred_train, train_labels)
+    acc_val = accuracy(y_pred_val, val_labels)
+
+    return(acc_train, acc_val)
 #pragma: coderesponse end
 
 
