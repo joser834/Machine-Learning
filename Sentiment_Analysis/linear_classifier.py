@@ -73,12 +73,6 @@ def classifier_accuracy(classifier, train_feature_matrix, val_feature_matrix, tr
 
     return(acc_train, acc_val)
 
-
-classifier_accuracy(1,1,1,1,1,theta = np.array([0,1]), theta_0 = 1)
-
-
-
-
 # Example for linear classifier -----------------------------------------------------------------------
 
 f = np.array([
