@@ -31,8 +31,22 @@ def compute_probabilities(X, theta, temp_parameter):
     Returns:
         H - (k, n) NumPy array, where each entry H[j][i] is the probability that X[i] is labeled as j
     """
-    #YOUR CODE HERE
-    raise NotImplementedError
+    for i in range(X.shape[0]):
+        c = np.max(np.dot(theta, X[i].T)/temp_parameter)
+        A = 1/np.sum(np.exp((np.dot(theta, X[i].T)/temp_parameter)-c))
+        h = (A * (np.exp((np.dot(theta, X[i].T)/temp_parameter)-c)))
+        if i == 0:
+            H = h
+        else:
+            H = np.column_stack((H,h))
+    return(H)
+
+n, d, k = 3, 5, 7
+x = np.arange(0, n * d).reshape(n, d)
+zeros = np.zeros((k, d))
+temp = 0.2
+theta = np.arange(0, k * d).reshape(k, d)
+print(compute_probabilities(x, theta, temp))
 
 def compute_cost_function(X, Y, theta, lambda_factor, temp_parameter):
     """
