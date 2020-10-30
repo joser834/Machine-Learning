@@ -20,7 +20,10 @@ def rectified_linear_unit(x):
 
 def rectified_linear_unit_derivative(x):
     """ Returns the derivative of ReLU."""
-    der = np.where(x>0,1,0)
+    if x > 0:
+        der = 1
+    else:
+        der = 0
     return(der)
 
 def output_layer_activation(x):
