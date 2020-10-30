@@ -15,11 +15,13 @@ import math
 
 def rectified_linear_unit(x):
     """ Returns the ReLU of x, or the maximum between 0 and x."""
-    # TODO
+    relu = np.where(x<0,0,x)
+    return(relu)
 
 def rectified_linear_unit_derivative(x):
     """ Returns the derivative of ReLU."""
-    # TODO
+    der = np.where(x>0,1,0)
+    return(der)
 
 def output_layer_activation(x):
     """ Linear function, returns input as is. """
@@ -40,10 +42,10 @@ class NeuralNetwork():
 
     def __init__(self):
 
-        # DO NOT CHANGE PARAMETERS
-        self.input_to_hidden_weights = np.matrix('1 1; 1 1; 1 1')
-        self.hidden_to_output_weights = np.matrix('1 1 1')
-        self.biases = np.matrix('0; 0; 0')
+        # DO NOT CHANGE PARAMETERS (Initialized to floats instead of ints)
+        self.input_to_hidden_weights = np.matrix('1. 1.; 1. 1.; 1.1.)
+        self.hidden_to_output_weights = np.matrix('1. 1. 1.')
+        self.biases = np.matrix('0.; 0.; 0.')
         self.learning_rate = .001
         self.epochs_to_train = 10
         self.training_points = [((2,1), 10), ((3,3), 21), ((4,5), 32), ((6, 6), 42)]
